@@ -181,17 +181,17 @@ namespace cop5536 {
         /*
             Initialize an AVL tree using a list of key-values, sorted by key, in O(N) time
         */
-        AVL(const kv_list& init_kvs): AVL(init_kvs.size()) {
+        AVL(const kv_list& init_kvs): AVL(init_kvs.size() * 2) {
             std::set<key_type> keys_touched;
             for (int i = 0; i != init_kvs.size(); ++i) {
                 keys_touched.insert(init_kvs[i].first);
             }
-            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size() - 1, keys_touched);
+            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size(), keys_touched);
             for(auto f : keys_touched) {
               // use f here
               std::cout<<f<<std::endl;
             }
-            free_index = 0;
+            reset_free_list();
         }
         /*
             Adds the specified key/value-pair to the tree and returns the number of

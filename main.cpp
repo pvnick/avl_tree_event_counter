@@ -45,10 +45,9 @@ bool read_if(const char* if_name, cop5536::EventCounter::kv_list& kvs) {
     return true;
 }
 
-void fuzz_avl_tree() {
+void fuzz_avl_tree(cop5536::BST& tree) {
     std::srand(std::time(0)); // use current time as seed for random generator
-    cop5536::AVL tree(10);
-    for (int i = 0; i != 1000000; ++i){
+    for (int i = 0; i != 100000; ++i){
         int op = std::floor(static_cast<float>(std::rand()) / RAND_MAX * 1000);
         uint64_t k = std::floor(static_cast<float>(std::rand()) / RAND_MAX * 100);
         uint64_t v = std::floor(static_cast<float>(std::rand()) / RAND_MAX * 100);
@@ -73,7 +72,10 @@ int main( int argc, char* argv[] )
     if ( ! read_if(argv[1], kvs))
         return 1;
     cop5536::BST ec(kvs);
+    for (auto kv: kvs) {
+        ec.insert(kv.first + 1, kv.second + 2);
+    }
+    fuzz_avl_tree(ec);
     ec.print(std::cout);
-    //fuzz_avl_tree();
     return 0;
 }

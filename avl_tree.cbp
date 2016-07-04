@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="test_1000.txt" />
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
@@ -21,6 +22,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="test_1000.txt" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -33,13 +35,11 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="CDAL.h" />
 		<Unit filename="avl.h" />
 		<Unit filename="bst.h" />
-		<Unit filename="common.h" />
+		<Unit filename="event_counter.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="priority_queue.h" />
-		<Unit filename="tostring_patch.h" />
+		<Unit filename="test_1000.txt" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -8,6 +8,8 @@
 #include <cmath>
 #include <set>
 
+//current problem: the number of nodes in the free list plus number of nodes in active list is less than the capacity
+
 namespace cop5536 {
     class BST {
     public:
@@ -265,6 +267,7 @@ namespace cop5536 {
         }
         void add_node_to_free_tree(size_t node_index) {
             nodes[node_index].disable_and_adopt_free_tree(free_index);
+            nodes[node_index].num_children = 1 + nodes[nodes[node_index].left_index].num_children;
             free_index = node_index;
         }
         size_t procure_node(key_type const& key, value_type const& value) {
@@ -378,44 +381,37 @@ namespace cop5536 {
         /*
         root node has parent_dst_idx=0 and is_left_subtree=false
         start_idx is inclusive
-        end_idx is inclusive
+        end_idx is exclusive
         return the new index of subtree root in the nodes array
         */
         virtual size_t init_from_kv_list(const kv_list& init_kvs, const size_t parent_dst_idx, bool is_left_subtree, const size_t start_idx, const size_t end_idx, std::set<key_type>& keys_touched) {
+            if (start_idx == end_idx)
+                return 0;
             size_t root_src_idx = (end_idx + start_idx) / 2,
                 root_dst_idx = parent_dst_idx * 2 + (is_left_subtree ? 0 : 1);
             kv_pair kv = init_kvs[root_src_idx];
-            if (kv.first == 21 || kv.first == 36) {
-                std::cout<<"here :" << kv.first<<std::endl;
-            }
-
-            if (start_idx > end_idx)
-                return 0;
-            //else if (start_idx == end_idx && !is_left_subtree)
-            //    return 0;
-            if (root_dst_idx > capacity())
-                return 0;
-            //if (root_dst_idx < 10)
-            std::cout << root_src_idx << " - " << root_dst_idx << std::endl;
-            //kv_pair kv = init_kvs[root_src_idx];
             Node& n = nodes[root_dst_idx];
-            n.key = kv.first;
+            n.reset_and_enable(kv.first, kv.second);
+            //todo:remove this
             keys_touched.erase(n.key);
-            n.value = kv.second;
-            if (root_src_idx == 0)
-                //prevent unsigned integer overflow
-                n.left_index = 0;
-            else {
-                n.left_index = init_from_kv_list(init_kvs, root_dst_idx, true, start_idx, root_src_idx - 1, keys_touched);
-                if (n.left_index)
-                    n.num_children = 1 + nodes[n.left_index].num_children;
-            }
+            n.left_index = init_from_kv_list(init_kvs, root_dst_idx, true, start_idx, root_src_idx, keys_touched);
+            if (n.left_index)
+                n.num_children = 1 + nodes[n.left_index].num_children;
             n.right_index = init_from_kv_list(init_kvs, root_dst_idx, false, root_src_idx + 1, end_idx, keys_touched);
             if (n.right_index)
                 n.num_children += 1 + nodes[n.right_index].num_children;
             n.validate_children_count_recursive(nodes);
             n.height = 1 + std::max(nodes[n.left_index].height, nodes[n.right_index].height);
             return root_dst_idx;
+        }
+        /*loop through every node and build the free list from disabled nodes*/
+        void reset_free_list() {
+            free_index = 0;
+            for (int i = 1; i != capacity(); ++i) {
+                Node& n = nodes[i];
+                if ( ! n.is_occupied)
+                    add_node_to_free_tree(i);
+            }
         }
     public:
         /*
@@ -433,17 +429,17 @@ namespace cop5536 {
             nodes = new Node[init_capacity + 1];
             clear();
         }
-        BST(const kv_list& init_kvs): BST(init_kvs.size()) {
+        BST(const kv_list& init_kvs): BST(init_kvs.size() * 2) {
             std::set<key_type> keys_touched;
             for (int i = 0; i != init_kvs.size(); ++i) {
                 keys_touched.insert(init_kvs[i].first);
             }
-            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size() - 1, keys_touched);
+            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size(), keys_touched);
             for(auto f : keys_touched) {
               // use f here
               std::cout<<f<<std::endl;
             }
-            free_index = 0;
+            reset_free_list();
         }
         /*
             Adds the specified key/value-pair to the tree and returns the number of
