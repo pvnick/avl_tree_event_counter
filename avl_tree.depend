@@ -1,0 +1,31 @@
+# depslib dependency file v1.0
+1467652599 source:c:\users\firefly\desktop\avl_tree\avl_tree\main.cpp
+	<iostream>
+	"event_counter.h"
+	<cstdlib>
+	<iostream>
+	<ctime>
+	<cmath>
+	<fstream>
+	<string>
+
+1467652556 c:\users\firefly\desktop\avl_tree\avl_tree\avl.h
+	<cstdlib>
+	<sstream>
+	<string>
+	"bst.h"
+
+1467515363 c:\users\firefly\desktop\avl_tree\avl_tree\tostring_patch.h
+
+1467652684 c:\users\firefly\desktop\avl_tree\avl_tree\bst.h
+	<cstdlib>
+	<sstream>
+	<vector>
+	<stdexcept>
+
+1467652633 c:\users\firefly\desktop\avl_tree\avl_tree\event_counter.h
+	<cstdlib>
+	<sstream>
+	<string>
+	"avl.h"
+
