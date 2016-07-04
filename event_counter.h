@@ -52,6 +52,10 @@ namespace cop5536 {
         */
         uint64_t in_range(key_type id) {
         }
+
+        std::ostream& print(std::ostream& out) const {
+            return super::print(out);
+        }
     };
 }
 

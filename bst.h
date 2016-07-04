@@ -5,6 +5,8 @@
 #include <sstream>
 #include <vector>
 #include <stdexcept>
+#include <cmath>
+#include <set>
 
 namespace cop5536 {
     class BST {
@@ -23,6 +25,9 @@ namespace cop5536 {
             size_t right_index;
             size_t height; //height-tracking so we can look that value up in O(1) time
             bool is_occupied;
+            Node(): num_children(0), left_index(0), right_index(0), height(0), is_occupied(0) {
+                std::cout << "init"<< std::endl;
+            }
             size_t validate_children_count_recursive(Node* nodes) {
                 //this function is for debugging purposes, does recursive traversal to find the correct number of children
                 size_t child_count = 0;
@@ -370,7 +375,48 @@ namespace cop5536 {
             for (size_t i = free_index; i != new_capacity; ++i)
                 nodes[i].disable_and_adopt_free_tree(i + 1);
         }
+        /*
+        root node has parent_dst_idx=0 and is_left_subtree=false
+        start_idx is inclusive
+        end_idx is inclusive
+        return the new index of subtree root in the nodes array
+        */
+        virtual size_t init_from_kv_list(const kv_list& init_kvs, const size_t parent_dst_idx, bool is_left_subtree, const size_t start_idx, const size_t end_idx, std::set<key_type>& keys_touched) {
+            size_t root_src_idx = (end_idx + start_idx) / 2,
+                root_dst_idx = parent_dst_idx * 2 + (is_left_subtree ? 0 : 1);
+            kv_pair kv = init_kvs[root_src_idx];
+            if (kv.first == 21 || kv.first == 36) {
+                std::cout<<"here :" << kv.first<<std::endl;
+            }
 
+            if (start_idx > end_idx)
+                return 0;
+            //else if (start_idx == end_idx && !is_left_subtree)
+            //    return 0;
+            if (root_dst_idx > capacity())
+                return 0;
+            //if (root_dst_idx < 10)
+            std::cout << root_src_idx << " - " << root_dst_idx << std::endl;
+            //kv_pair kv = init_kvs[root_src_idx];
+            Node& n = nodes[root_dst_idx];
+            n.key = kv.first;
+            keys_touched.erase(n.key);
+            n.value = kv.second;
+            if (root_src_idx == 0)
+                //prevent unsigned integer overflow
+                n.left_index = 0;
+            else {
+                n.left_index = init_from_kv_list(init_kvs, root_dst_idx, true, start_idx, root_src_idx - 1, keys_touched);
+                if (n.left_index)
+                    n.num_children = 1 + nodes[n.left_index].num_children;
+            }
+            n.right_index = init_from_kv_list(init_kvs, root_dst_idx, false, root_src_idx + 1, end_idx, keys_touched);
+            if (n.right_index)
+                n.num_children += 1 + nodes[n.right_index].num_children;
+            n.validate_children_count_recursive(nodes);
+            n.height = 1 + std::max(nodes[n.left_index].height, nodes[n.right_index].height);
+            return root_dst_idx;
+        }
     public:
         /*
             The constructor will allocate an array of capacity (binary
@@ -386,6 +432,18 @@ namespace cop5536 {
             }
             nodes = new Node[init_capacity + 1];
             clear();
+        }
+        BST(const kv_list& init_kvs): BST(init_kvs.size()) {
+            std::set<key_type> keys_touched;
+            for (int i = 0; i != init_kvs.size(); ++i) {
+                keys_touched.insert(init_kvs[i].first);
+            }
+            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size() - 1, keys_touched);
+            for(auto f : keys_touched) {
+              // use f here
+              std::cout<<f<<std::endl;
+            }
+            free_index = 0;
         }
         /*
             Adds the specified key/value-pair to the tree and returns the number of

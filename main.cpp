@@ -69,10 +69,11 @@ int main( int argc, char* argv[] )
         std::cout << "Expected first argument to be the input file name" << std::endl;
         return 1;
     }
-    cop5536::EventCounter::kv_list kvs;
+    cop5536::BST::kv_list kvs;
     if ( ! read_if(argv[1], kvs))
         return 1;
-    cop5536::EventCounter ec(kvs);
-    fuzz_avl_tree();
+    cop5536::BST ec(kvs);
+    ec.print(std::cout);
+    //fuzz_avl_tree();
     return 0;
 }
