@@ -170,8 +170,8 @@ namespace cop5536 {
             if (_DEBUG_)
                 do_validate_avl_balance(this->root_index);
         }
-        size_t init_from_kv_list(const kv_list& init_kvs, const size_t parent_dst_idx, bool is_left_subtree, const size_t start_idx, const size_t end_idx, std::set<key_type>& keys_touched) {
-            size_t root_dst_idx = super::init_from_kv_list(init_kvs, parent_dst_idx, is_left_subtree, start_idx, end_idx, keys_touched);
+        size_t init_from_kv_list(const kv_list& init_kvs, const size_t start_idx, const size_t end_idx) {
+            size_t root_dst_idx = super::init_from_kv_list(init_kvs, start_idx, end_idx);
             if (root_dst_idx > 0)
                 balance(root_dst_idx);
             return root_dst_idx;
@@ -182,16 +182,7 @@ namespace cop5536 {
             Initialize an AVL tree using a list of key-values, sorted by key, in O(N) time
         */
         AVL(const kv_list& init_kvs): AVL(init_kvs.size() * 2) {
-            std::set<key_type> keys_touched;
-            for (int i = 0; i != init_kvs.size(); ++i) {
-                keys_touched.insert(init_kvs[i].first);
-            }
-            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size(), keys_touched);
-            for(auto f : keys_touched) {
-              // use f here
-              std::cout<<f<<std::endl;
-            }
-            reset_free_list();
+            root_index = init_from_kv_list(init_kvs, 0, init_kvs.size());
         }
         /*
             Adds the specified key/value-pair to the tree and returns the number of

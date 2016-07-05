@@ -1,6 +1,6 @@
 #include <iostream>
 
-#define _DEBUG_ true
+#define _DEBUG_ false
 
 #include "event_counter.h"
 #include <cstdlib>
@@ -68,14 +68,14 @@ int main( int argc, char* argv[] )
         std::cout << "Expected first argument to be the input file name" << std::endl;
         return 1;
     }
-    cop5536::BST::kv_list kvs;
+    cop5536::EventCounter::kv_list kvs;
     if ( ! read_if(argv[1], kvs))
         return 1;
-    cop5536::BST ec(kvs);
-    for (auto kv: kvs) {
-        ec.insert(kv.first + 1, kv.second + 2);
-    }
-    fuzz_avl_tree(ec);
-    ec.print(std::cout);
+    cop5536::EventCounter ec(kvs);
+    //for (auto kv: kvs) {
+    //    ec.insert(kv.first + 1, kv.second + 2);
+    //}
+    //fuzz_avl_tree(ec);
+    //ec.print(std::cout);
     return 0;
 }

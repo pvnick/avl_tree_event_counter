@@ -9,6 +9,7 @@
 #include <set>
 
 //current problem: the number of nodes in the free list plus number of nodes in active list is less than the capacity
+//todo: get rid of the concept of a free list. make BST abstract so it cant be used
 
 namespace cop5536 {
     class BST {
@@ -27,9 +28,7 @@ namespace cop5536 {
             size_t right_index;
             size_t height; //height-tracking so we can look that value up in O(1) time
             bool is_occupied;
-            Node(): num_children(0), left_index(0), right_index(0), height(0), is_occupied(0) {
-                std::cout << "init"<< std::endl;
-            }
+            Node(): num_children(0), left_index(0), right_index(0), height(0), is_occupied(0) {}
             size_t validate_children_count_recursive(Node* nodes) {
                 //this function is for debugging purposes, does recursive traversal to find the correct number of children
                 size_t child_count = 0;
@@ -216,7 +215,7 @@ namespace cop5536 {
             std::ostringstream oss;
             //print the node
             //todo: fix this to only print the key
-            oss << "[" << subtree_root.key << ": " << subtree_root.value << "]";
+            oss << "[" << subtree_root.key << ": " << subtree_root.value << "] (" << subtree_root.balance_factor(nodes) << ")";
             buffer_lines[root_line_index] += oss.str();
             //print the right descendents
             if (subtree_root.right_index > 0) {
@@ -379,39 +378,27 @@ namespace cop5536 {
                 nodes[i].disable_and_adopt_free_tree(i + 1);
         }
         /*
-        root node has parent_dst_idx=0 and is_left_subtree=false
         start_idx is inclusive
         end_idx is exclusive
         return the new index of subtree root in the nodes array
         */
-        virtual size_t init_from_kv_list(const kv_list& init_kvs, const size_t parent_dst_idx, bool is_left_subtree, const size_t start_idx, const size_t end_idx, std::set<key_type>& keys_touched) {
+        virtual size_t init_from_kv_list(const kv_list& init_kvs, const size_t start_idx, const size_t end_idx) {
             if (start_idx == end_idx)
                 return 0;
-            size_t root_src_idx = (end_idx + start_idx) / 2,
-                root_dst_idx = parent_dst_idx * 2 + (is_left_subtree ? 0 : 1);
+            size_t root_src_idx = (end_idx + start_idx) / 2;
             kv_pair kv = init_kvs[root_src_idx];
+            size_t root_dst_idx = procure_node(kv.first, kv.second);
             Node& n = nodes[root_dst_idx];
-            n.reset_and_enable(kv.first, kv.second);
-            //todo:remove this
-            keys_touched.erase(n.key);
-            n.left_index = init_from_kv_list(init_kvs, root_dst_idx, true, start_idx, root_src_idx, keys_touched);
+            n.left_index = init_from_kv_list(init_kvs, start_idx, root_src_idx);
             if (n.left_index)
                 n.num_children = 1 + nodes[n.left_index].num_children;
-            n.right_index = init_from_kv_list(init_kvs, root_dst_idx, false, root_src_idx + 1, end_idx, keys_touched);
+            n.right_index = init_from_kv_list(init_kvs, root_src_idx + 1, end_idx);
             if (n.right_index)
                 n.num_children += 1 + nodes[n.right_index].num_children;
-            n.validate_children_count_recursive(nodes);
+            if (_DEBUG_)
+                n.validate_children_count_recursive(nodes);
             n.height = 1 + std::max(nodes[n.left_index].height, nodes[n.right_index].height);
             return root_dst_idx;
-        }
-        /*loop through every node and build the free list from disabled nodes*/
-        void reset_free_list() {
-            free_index = 0;
-            for (int i = 1; i != capacity(); ++i) {
-                Node& n = nodes[i];
-                if ( ! n.is_occupied)
-                    add_node_to_free_tree(i);
-            }
         }
     public:
         /*
@@ -430,16 +417,7 @@ namespace cop5536 {
             clear();
         }
         BST(const kv_list& init_kvs): BST(init_kvs.size() * 2) {
-            std::set<key_type> keys_touched;
-            for (int i = 0; i != init_kvs.size(); ++i) {
-                keys_touched.insert(init_kvs[i].first);
-            }
-            root_index = init_from_kv_list(init_kvs, 0, false, 0, init_kvs.size(), keys_touched);
-            for(auto f : keys_touched) {
-              // use f here
-              std::cout<<f<<std::endl;
-            }
-            reset_free_list();
+            root_index = init_from_kv_list(init_kvs, 0, init_kvs.size());
         }
         /*
             Adds the specified key/value-pair to the tree and returns the number of
