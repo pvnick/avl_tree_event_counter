@@ -1,15 +1,8 @@
 # depslib dependency file v1.0
-1467686513 source:c:\users\firefly\desktop\avl_tree\avl_tree\main.cpp
-	<iostream>
-	"event_counter.h"
-	<cstdlib>
-	<iostream>
-	<ctime>
-	<cmath>
-	<fstream>
-	<string>
+1468032396 source:c:\users\firefly\desktop\avl_tree\avl_tree\main.cpp
+	"driver.h"
 
-1467684611 c:\users\firefly\desktop\avl_tree\avl_tree\avl.h
+1468077613 c:\users\firefly\desktop\avl_tree\avl_tree\avl.h
 	<cstdlib>
 	<sstream>
 	<string>
@@ -17,7 +10,7 @@
 
 1467515363 c:\users\firefly\desktop\avl_tree\avl_tree\tostring_patch.h
 
-1467686713 c:\users\firefly\desktop\avl_tree\avl_tree\bst.h
+1468028741 c:\users\firefly\desktop\avl_tree\avl_tree\bst.h
 	<cstdlib>
 	<sstream>
 	<vector>
@@ -25,9 +18,24 @@
 	<cmath>
 	<set>
 
-1467658742 c:\users\firefly\desktop\avl_tree\avl_tree\event_counter.h
+1468077751 c:\users\firefly\desktop\avl_tree\avl_tree\event_counter.h
 	<cstdlib>
 	<sstream>
 	<string>
+	<iostream>
 	"avl.h"
+
+1468078759 c:\users\firefly\desktop\avl_tree\avl_tree\driver.h
+	"event_counter.h"
+	<iostream>
+	<ctime>
+	<fstream>
+	<string>
+	<cstdlib>
+	<sstream>
+	<vector>
+	<stdexcept>
+	<cmath>
+	<algorithm>
+	<string.h>
 

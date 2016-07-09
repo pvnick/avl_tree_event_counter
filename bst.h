@@ -8,9 +8,6 @@
 #include <cmath>
 #include <set>
 
-//current problem: the number of nodes in the free list plus number of nodes in active list is less than the capacity
-//todo: get rid of the concept of a free list. make BST abstract so it cant be used
-
 namespace cop5536 {
     class BST {
     public:
@@ -214,7 +211,6 @@ namespace cop5536 {
             Node subtree_root = nodes[subtree_root_index];
             std::ostringstream oss;
             //print the node
-            //todo: fix this to only print the key
             oss << "[" << subtree_root.key << ": " << subtree_root.value << "] (" << subtree_root.balance_factor(nodes) << ")";
             buffer_lines[root_line_index] += oss.str();
             //print the right descendents

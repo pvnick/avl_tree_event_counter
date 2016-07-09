@@ -156,19 +156,13 @@ namespace cop5536 {
                 throw std::domain_error(err.str());
             }
         }
-        void do_validate_avl_balance(size_t subtree_root_index) const {
-            if (_DEBUG_) {
-                if (subtree_root_index == 0) return;
-                Node const& n = this->nodes[subtree_root_index];
-                if (abs(n.balance_factor(this->nodes)) > 1)
-                    throw std::domain_error("Unexpected unbalanced tree while checking balance factor of all tree nodes");
-                do_validate_avl_balance(n.left_index);
-                do_validate_avl_balance(n.right_index);
-            }
-        }
-        void validate_avl_balance() {
-            if (_DEBUG_)
-                do_validate_avl_balance(this->root_index);
+        void validate_avl_balance(size_t subtree_root_index) const {
+            if (subtree_root_index == 0) return;
+            Node const& n = this->nodes[subtree_root_index];
+            if (abs(n.balance_factor(this->nodes)) > 1)
+                throw std::domain_error("Unexpected unbalanced tree while checking balance factor of all tree nodes");
+            validate_avl_balance(n.left_index);
+            validate_avl_balance(n.right_index);
         }
         size_t init_from_kv_list(const kv_list& init_kvs, const size_t start_idx, const size_t end_idx) {
             size_t root_dst_idx = super::init_from_kv_list(init_kvs, start_idx, end_idx);
@@ -198,9 +192,10 @@ namespace cop5536 {
             key_type k(key);
             value_type v(value);
             int nodes_visited = insert_at_leaf(0, this->root_index, k, v, found_key);
-            validate_avl_balance();
-            if (_DEBUG_)
+            if (_DEBUG_) {
+                validate_avl_balance(this->root_index);
                 this->nodes[this->root_index].validate_children_count_recursive(this->nodes);
+            }
             return nodes_visited;
         }
         /*
@@ -214,9 +209,10 @@ namespace cop5536 {
             key_type k(key);
             value_type v(value);
             int nodes_visited = do_remove(0, this->root_index, k, v, found_key);
-            validate_avl_balance();
-            if (_DEBUG_)
+            if (_DEBUG_) {
+                validate_avl_balance(this->root_index);
                 this->nodes[this->root_index].validate_children_count_recursive(this->nodes);
+            }
             if (found_key)
                 value = v;
             return found_key ? nodes_visited : -1 * nodes_visited;
