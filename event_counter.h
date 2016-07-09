@@ -62,7 +62,6 @@ namespace cop5536 {
         }
         void do_in_range(size_t subtree_root_index, const key_type& k_l, const key_type& k_r, value_list& values, size_t& nodes_visited) {
             nodes_visited = nodes_visited + 1;
-            //todo: this should be done in O(lgN + s) time
             if (subtree_root_index == 0)
                 return;
             Node const& subtree_root = nodes[subtree_root_index];
