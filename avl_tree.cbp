@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="test_1000.txt" />
+				<Option parameters="test_1000000.txt" />
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
@@ -22,9 +22,10 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="test_1000.txt" />
+				<Option parameters="test_1000000.txt" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
+					<Add option="-std=c++11" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -37,9 +38,11 @@
 		</Compiler>
 		<Unit filename="avl.h" />
 		<Unit filename="bst.h" />
+		<Unit filename="driver.h" />
 		<Unit filename="event_counter.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="test_1000.txt" />
+		<Unit filename="test_1000000.txt" />
 		<Extensions>
 			<code_completion />
 			<envvars />

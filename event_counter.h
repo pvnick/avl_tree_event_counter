@@ -20,7 +20,7 @@ namespace cop5536 {
         using typename super::Node;
         bool do_find_next(size_t subtree_root_index, const key_type& search_k, key_type& found_k, value_type& found_v, size_t& nodes_visited) {
             nodes_visited = nodes_visited + 1;
-            //do in-order traversal to find the first key which is greater than search_k, while skipping trees that can't possibly be a match
+            //do in-order traversal to find the first key which is greater than search_k, while skipping subtrees that can't possibly contain a match
             if (subtree_root_index == 0)
                 return false;
             Node const& subtree_root = nodes[subtree_root_index];
@@ -41,7 +41,7 @@ namespace cop5536 {
         }
         bool do_find_previous(size_t subtree_root_index, const key_type& search_k, key_type& found_k, value_type& found_v, size_t& nodes_visited) {
             nodes_visited = nodes_visited + 1;
-            //do in-order traversal backwards to find the first key which is less than search_k, while skipping trees that can't possibly be a match
+            //do in-order traversal backwards to find the first key which is less than search_k, while skipping subtrees that can't possibly contain a match
             if (subtree_root_index == 0)
                 return false;
             Node const& subtree_root = nodes[subtree_root_index];
@@ -61,6 +61,7 @@ namespace cop5536 {
             return do_find_previous(subtree_root.left_index, search_k, found_k, found_v, nodes_visited);
         }
         void do_in_range(size_t subtree_root_index, const key_type& k_l, const key_type& k_r, value_list& values, size_t& nodes_visited) {
+            //do in-order traversal to find keys which are between k_l and k_r (inclusive, while skipping subtrees that can't possibly contain a match
             nodes_visited = nodes_visited + 1;
             if (subtree_root_index == 0)
                 return;
