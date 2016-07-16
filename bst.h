@@ -202,64 +202,6 @@ namespace cop5536 {
             }
             return nodes_visited;
         }
-        void write_subtree_buffer(size_t subtree_root_index,
-                                  std::vector<std::string>& buffer_lines,
-                                  size_t root_line_index,
-                                  size_t lbound_line_index /*inclusive*/,
-                                  size_t ubound_line_index /*exclusive*/) const
-        {
-            Node subtree_root = nodes[subtree_root_index];
-            std::ostringstream oss;
-            //print the node
-            oss << "[" << subtree_root.key << ": " << subtree_root.value << "] (" << subtree_root.balance_factor(nodes) << ")";
-            buffer_lines[root_line_index] += oss.str();
-            //print the right descendents
-            if (subtree_root.right_index > 0) {
-                //at least 1 right child
-                size_t top_dashes = 1;
-                Node const& right_child = nodes[subtree_root.right_index];
-                if (right_child.left_index > 0) {
-                    //right child has at least 1 left child
-                    Node const& right_left_child = nodes[right_child.left_index];
-                    top_dashes += 2 * (1 + right_left_child.num_children);
-                }
-                size_t top_line_index = root_line_index - 1;
-                while (top_line_index >= root_line_index - top_dashes)
-                    buffer_lines[top_line_index--] += "|  ";
-                size_t right_child_line_index = top_line_index;
-                buffer_lines[top_line_index--] += "+--";
-                while (top_line_index >= lbound_line_index)
-                    buffer_lines[top_line_index--] += "   ";
-                write_subtree_buffer(subtree_root.right_index,
-                                     buffer_lines,
-                                     right_child_line_index,
-                                     lbound_line_index,
-                                     root_line_index);
-            }
-            //print the left descendents
-            if (subtree_root.left_index > 0) {
-                //at least 1 left child
-                size_t bottom_dashes = 1;
-                Node const& left_child = nodes[subtree_root.left_index];
-                if (left_child.right_index > 0) {
-                    //left child has at least 1 right child
-                    Node const& left_right_child = nodes[left_child.right_index];
-                    bottom_dashes += 2 * (1 + left_right_child.num_children);
-                }
-                size_t bottom_line_index = root_line_index + 1;
-                while (bottom_line_index <= root_line_index + bottom_dashes)
-                    buffer_lines[bottom_line_index++] += "|  ";
-                size_t left_child_line_index = bottom_line_index;
-                buffer_lines[bottom_line_index++] += "+--";
-                while (bottom_line_index < ubound_line_index)
-                    buffer_lines[bottom_line_index++] += "   ";
-                write_subtree_buffer(subtree_root.left_index,
-                                     buffer_lines,
-                                     left_child_line_index,
-                                     root_line_index + 1,
-                                     ubound_line_index);
-            }
-        }
         void add_node_to_free_tree(size_t node_index) {
             nodes[node_index].disable_and_adopt_free_tree(free_index);
             nodes[node_index].num_children = 1 + nodes[nodes[node_index].left_index].num_children;
@@ -336,27 +278,6 @@ namespace cop5536 {
             }
             return nodes_visited;
         }
-        void remove_ith_node_inorder(size_t& subtree_root_index,
-                                     size_t& ith_node_to_delete,
-                                     key_type& key)
-        {
-            Node& subtree_root = nodes[subtree_root_index];
-            if (subtree_root.left_index)
-                remove_ith_node_inorder(subtree_root.left_index, ith_node_to_delete, key);
-            if (ith_node_to_delete == 0)
-                //deleted node in child subtree; nothing more to do
-                return;
-            if (--ith_node_to_delete == 0) {
-                //delete the current node
-                value_type dummy_val;
-                remove(subtree_root.key, dummy_val);
-                key = subtree_root.key;
-                return;
-            }
-            if (subtree_root.right_index)
-                remove_ith_node_inorder(subtree_root.right_index, ith_node_to_delete, key);
-        }
-
         void increase_capacity() {
             size_t old_capacity = capacity(),
                 new_capacity = old_capacity * 2;
@@ -409,17 +330,16 @@ namespace cop5536 {
             if (init_capacity == 0) {
                 throw std::domain_error("init_capacity must be at least 1");
             }
+            //in an ideal world we'd use something like a vector here, but we don't live in a perfect world; we live in a Hillary vs. Trump world
             nodes = new Node[init_capacity + 1];
             clear();
         }
         BST(const kv_list& init_kvs): BST(init_kvs.size() * 2) {
             root_index = init_from_kv_list(init_kvs, 0, init_kvs.size());
         }
-        BST::~BST() {
-            if (nodes) {
-                std::cout << "deleting nodes" << std::endl;
+        ~BST() {
+            if (nodes)
                 delete[] nodes;
-            }
         }
         /*
             Adds the specified key/value-pair to the tree and returns the number of
@@ -502,44 +422,6 @@ namespace cop5536 {
             Node const& root = nodes[root_index];
             return 1 + root.num_children;
         }
-        /*
-            prints the tree in the following format:
-            +--[tiger: tiger val]
-            |  |
-            |  |  +--[panther: panther val]
-            |  |  |
-            |  +--[ocelot: ocelot val]
-            |     |
-            |     +--[lion: lion val]
-            |
-            [leopard: leopard val]
-            |
-            |     +--[house cat: house cat val]
-            |     |
-            |  +--[cougar: cougar val]
-            |  |
-            +--[cheetah: cheetah val]
-               |
-               +--[bobcat: bobcat val]
-        */
-        virtual std::ostream& print(std::ostream& out) const {
-            if (is_empty())
-                return out;
-            size_t num_lines = size() * 2 - 1;
-            std::vector<std::string> buffer_lines;
-            for(size_t i = 0; i <= num_lines; ++i)
-                buffer_lines.push_back("");
-            Node const& root = nodes[root_index];
-            size_t root_line_index = 1;
-            if (root.right_index) {
-                root_line_index += 2 * (1 + nodes[root.right_index].num_children);
-            }
-            write_subtree_buffer(root_index, buffer_lines, root_line_index, 1, num_lines + 1);
-            for (size_t i = 1; i <= num_lines; ++i)
-                out << buffer_lines[i] << std::endl;
-            return out;
-        }
-
     };
 }
 
