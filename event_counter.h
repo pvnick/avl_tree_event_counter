@@ -122,7 +122,7 @@ namespace cop5536 {
         }
 
         /*
-        Print ID and count of the event with greatest ID that is less than ID. Print “0 0” if there is no previous ID.
+        Return ID and count of the event with greatest ID that is less than ID. Return “0 0” if there is no previous ID.
         */
         kv_pair previous(key_type id) {
             key_type found_k(0);

@@ -13,6 +13,7 @@ int main( int argc, char* argv[] )
     if ( ! driver.load_file(inp_f))
         return 1;
     while(true) {
+        //the only point of main.cpp is to instantiate the driver with the input file and then pass input lines to it
         std::string line;
         std::getline(std::cin, line);
         driver.run_cmd(line);
