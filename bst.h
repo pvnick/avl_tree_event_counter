@@ -337,10 +337,6 @@ namespace cop5536 {
         BST(const kv_list& init_kvs): BST(init_kvs.size() * 2) {
             root_index = init_from_kv_list(init_kvs, 0, init_kvs.size());
         }
-        ~BST() {
-            if (nodes)
-                delete[] nodes;
-        }
         /*
             Adds the specified key/value-pair to the tree and returns the number of
             nodes visited, V. Increases capacity if necessary. If an item already
