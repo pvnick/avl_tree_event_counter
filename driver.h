@@ -159,7 +159,7 @@ namespace cop5536 {
     public:
         Driver(): ec(1) { }
         bool load_file(std::string inp_f) {
-            //set the current copy of the vent counter to one instantiated with the given input file name
+            //set the current copy of the event counter to one instantiated with the given input file name
             EventCounter::kv_list kvs;
             if ( ! read_inp_f(inp_f, kvs))
                 return false;
